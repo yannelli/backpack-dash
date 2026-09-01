@@ -6,7 +6,7 @@ import {
   jumpVisualForFrame,
   lookFrameForVector,
 } from '../src/game/atlas';
-import { JumpController, estimateJumpEnvelope, selectJumpImpulse } from '../src/game/jump';
+import { JumpController, autoJumpScreenWindow, estimateJumpEnvelope, selectJumpImpulse } from '../src/game/jump';
 import { createRng, hashSeed, seedFromUrl } from '../src/game/rng';
 import { calculateScore } from '../src/game/scoring';
 import { commitRun, emptySave, loadSave, parseSave, saveMuted } from '../src/game/save';
@@ -113,6 +113,14 @@ describe('jump timing', () => {
   it('makes a held jump higher than a released tap', () => {
     expect(selectJumpImpulse(true, false)).toBe(620);
     expect(selectJumpImpulse(false, true)).toBe(520);
+  });
+
+  it('keeps floor-1 auto-jump takeoff inside the tall-crate clearance band', () => {
+    const { minX, maxX } = autoJumpScreenWindow(300);
+    expect(minX).toBeCloseTo(320, 0);
+    expect(maxX).toBeCloseTo(342, 0);
+    expect(maxX - minX).toBeGreaterThan(16);
+    expect(maxX).toBeLessThan(357);
   });
 });
 
