@@ -3,6 +3,7 @@ import {
   GRAVITY,
   JUMP_BUFFER_MS,
   JUMP_IMPULSE,
+  PLAYER_X,
   SHORT_JUMP_IMPULSE,
 } from './constants';
 
@@ -54,4 +55,16 @@ export function estimateJumpEnvelope(
 
 export function selectJumpImpulse(actionHeld: boolean, releasedBeforeLaunch: boolean): number {
   return actionHeld && !releasedBeforeLaunch ? JUMP_IMPULSE : SHORT_JUMP_IMPULSE;
+}
+
+export function autoJumpScreenWindow(
+  speed: number,
+  playerX = PLAYER_X,
+): { minX: number; maxX: number } {
+  const firstOverlapX = playerX + 43;
+  const lastOverlapX = playerX - 43;
+  return {
+    minX: firstOverlapX + speed * 0.21,
+    maxX: lastOverlapX + speed * 0.57,
+  };
 }

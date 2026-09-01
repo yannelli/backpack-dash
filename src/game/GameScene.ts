@@ -23,7 +23,7 @@ import {
   START_SPEED,
 } from './constants';
 import { floorLengthForFloor, generateFloorLayout, speedForFloor } from './generator';
-import { JumpController, selectJumpImpulse } from './jump';
+import { JumpController, autoJumpScreenWindow, selectJumpImpulse } from './jump';
 import { validatePatternLibrary } from './patterns';
 import { createRng, seedFromUrl, type SeededRng } from './rng';
 import { calculateScore } from './scoring';
@@ -64,6 +64,7 @@ export class GameScene extends Phaser.Scene {
   private explicitSeed: string | null = null;
   private reducedMotion = false;
   private qaNoCollision = false;
+  private qaAutoJump = false;
 
   private background?: Phaser.GameObjects.Image;
   private parallax?: Phaser.GameObjects.TileSprite;
@@ -109,8 +110,10 @@ export class GameScene extends Phaser.Scene {
     this.storage = this.safeStorage();
     this.saveData = loadSave(this.storage);
     this.audio = new AudioManager(this.saveData.muted);
-    this.explicitSeed = new URL(window.location.href).searchParams.get('seed')?.trim() || null;
-    this.qaNoCollision = new URL(window.location.href).searchParams.get('qaNoCollision') === '1';
+    const searchParams = new URL(window.location.href).searchParams;
+    this.explicitSeed = searchParams.get('seed')?.trim() || null;
+    this.qaNoCollision = searchParams.get('qaNoCollision') === '1';
+    this.qaAutoJump = searchParams.get('qaAutoJump') === '1';
 
     createGameTextures(this);
     registerRyanAnimations(this);
@@ -480,6 +483,8 @@ export class GameScene extends Phaser.Scene {
       if (!this.wasGrounded) this.audio.play('land');
     }
 
+    if (this.qaAutoJump) this.queueAutoJump(time);
+
     if (this.jumpController.consume(time)) {
       body.setVelocityY(-selectJumpImpulse(this.actionHeld, this.releasedBeforeLaunch));
       this.releasedBeforeLaunch = false;
@@ -490,6 +495,34 @@ export class GameScene extends Phaser.Scene {
     }
     this.wasGrounded = grounded && body.velocity.y >= 0;
     this.syncPlayerVisual();
+  }
+
+  private queueAutoJump(time: number): void {
+    if (this.phase !== 'running' || this.actionHeld) return;
+
+    let nextHazardX = Number.POSITIVE_INFINITY;
+    for (const child of this.hazards.getChildren()) {
+      const hazard = child as Phaser.Physics.Arcade.Image;
+      if (!hazard.active) continue;
+      if (hazard.x >= PLAYER_X - 30 && hazard.x < nextHazardX) {
+        nextHazardX = hazard.x;
+      }
+    }
+    if (!Number.isFinite(nextHazardX)) return;
+
+    // Tall crates overlap the player roughly from x=171–257. Jumping at the
+    // leading edge of a wide window lands on the crate; take off ~0.21–0.28s
+    // before first contact so the arc still clears at last contact.
+    const { minX, maxX } = autoJumpScreenWindow(this.speed);
+    if (nextHazardX <= minX || nextHazardX >= maxX) return;
+
+    this.actionHeld = true;
+    this.actionStartedAt = time;
+    this.releasedBeforeLaunch = false;
+    this.jumpController.queue(time);
+    this.time.delayedCall(MAX_JUMP_HOLD_MS + 20, () => {
+      if (this.phase === 'running' && this.actionHeld) this.actionUp();
+    });
   }
 
   private spawnFloorContent(): void {

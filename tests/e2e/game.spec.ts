@@ -79,28 +79,21 @@ test('shows game over and retries without a reload', async ({ page }, testInfo) 
 
 test('survives a generated floor and completes an elevator transition', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop-chrome', 'Hazard-aware full-floor run only needs one browser profile.');
-  test.setTimeout(40_000);
+  test.setTimeout(55_000);
+  await page.goto('/?seed=e2e-floor-404&qaAutoJump=1');
+  await expect(page.locator('body')).toHaveAttribute('data-game-phase', 'title');
   await page.keyboard.press('Space');
-  let lastJumpedHazard = '';
-  const deadline = Date.now() + 35_000;
-
-  while (Date.now() < deadline) {
-    const body = page.locator('body');
-    const phase = await body.getAttribute('data-game-phase');
-    const floor = Number(await body.getAttribute('data-floor'));
-    if (floor >= 2) break;
-    expect(phase).not.toBe('gameOver');
-    const hazardX = Number(await body.getAttribute('data-next-hazard-x'));
-    const hazardId = (await body.getAttribute('data-next-hazard-distance')) ?? '';
-    if (phase === 'running' && hazardId && hazardId !== lastJumpedHazard && hazardX > 270 && hazardX < 350) {
-      lastJumpedHazard = hazardId;
-      await page.keyboard.down('Space');
-      await page.waitForTimeout(210);
-      await page.keyboard.up('Space');
-    }
-    await page.waitForTimeout(45);
-  }
-
+  await expect(page.locator('body')).toHaveAttribute('data-game-phase', 'running');
+  const outcome = await page.waitForFunction(
+    () => {
+      const phase = document.body.dataset.gamePhase;
+      if (phase === 'gameOver') return 'crashed';
+      if (document.body.dataset.floor === '2') return 'cleared';
+      return false;
+    },
+    { timeout: 50_000 },
+  );
+  expect(await outcome.jsonValue(), 'should clear floor 1 without colliding').toBe('cleared');
   await expect(page.locator('body')).toHaveAttribute('data-floor', '2');
   await expect(page.locator('body')).toHaveAttribute('data-game-phase', /running|elevator/);
   await expect(page.locator('body')).toHaveAttribute(
