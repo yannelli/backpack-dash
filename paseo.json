@@ -1,0 +1,48 @@
+{
+  "worktree": {
+    "setup": "pnpm install --frozen-lockfile",
+    "teardown": [
+      "rm -rf test-results playwright-report || true",
+      "rm -f ./*.log || true"
+    ]
+  },
+  "scripts": {
+    "web": {
+      "type": "service",
+      "command": "pnpm dev --port \"$PASEO_PORT\" --strictPort"
+    },
+    "preview": {
+      "type": "service",
+      "command": "pnpm preview --port \"$PASEO_PORT\" --strictPort"
+    },
+    "build": {
+      "command": "pnpm build"
+    },
+    "test": {
+      "command": "pnpm test"
+    },
+    "test:watch": {
+      "command": "pnpm test:watch"
+    },
+    "test:e2e": {
+      "command": "E2E_PORT=\"$(node -e \"const s=require('net').createServer();s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>console.log(p))})\")\" pnpm test:e2e"
+    },
+    "test:soak": {
+      "command": "E2E_PORT=\"$(node -e \"const s=require('net').createServer();s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>console.log(p))})\")\" pnpm test:soak"
+    }
+  },
+  "metadataGeneration": {
+    "title": {
+      "instructions": "Use a concise three-to-five-word Title Case noun phrase describing the task. Do not use a leading verb, branch prefix, quotes, or markdown."
+    },
+    "branchName": {
+      "instructions": "Use `<type>/<kebab-case-description>`. Choose the narrowest fitting type from `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`, `style`, or `revert`. Keep the description concise and use valid Git ref characters."
+    },
+    "commitMessage": {
+      "instructions": "Return only one Conventional Commit message for the staged diff. Use `<type>(<scope>): <imperative summary>` and keep the first line at 72 characters or fewer. Choose from `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore`, `style`, or `revert`. Use a scope such as `game`, `audio`, `player`, `floors`, `title`, `ui`, `e2e`, `build`, or `assets` when it adds useful context; otherwise omit it. For a breaking change, add `!` before the colon and include a `BREAKING CHANGE:` footer. Use `feat` for a new user-visible capability, `fix` or `perf` for patch-level behavior, and a breaking marker for a major change. Describe only the staged change. Describe source behavior without narrating generated `dist/` filenames. Do not add surrounding prose or generated-by footers."
+    },
+    "pullRequest": {
+      "instructions": "Return a concise pull request title followed by a GitHub-flavored Markdown body. Cover the complete branch. Use `## Summary` for the behavior and implementation, then `## Testing` with a checklist of checks that were run. Call out breaking changes explicitly. Describe source behavior without narrating generated `dist/` filenames. Do not add surrounding prose or generated-by footers."
+    }
+  }
+}
