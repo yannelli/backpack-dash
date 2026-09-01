@@ -1,0 +1,10 @@
+{
+  "name": "Floor ∞: Backpack Dash",
+  "install": "pnpm install --frozen-lockfile",
+  "terminals": [
+    {
+      "name": "dev-server",
+      "command": "pnpm dev"
+    }
+  ]
+}
