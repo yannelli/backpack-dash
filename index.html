@@ -3,20 +3,70 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#070a16" />
-    <meta
-      name="description"
-      content="Floor Infinity: Backpack Dash — an endless pixel runner starring Mini Ryan."
-    />
+    <meta name="theme-color" content="#050711" />
+    <meta name="description" content="Floor Infinity: Backpack Dash — an endless pixel runner starring Mini Ryan." />
     <title>Floor ∞: Backpack Dash</title>
   </head>
-  <body>
+  <body data-game-phase="boot">
     <main id="game-shell" aria-label="Floor Infinity: Backpack Dash">
-      <div id="game" role="application" aria-label="Endless runner game canvas"></div>
-      <p id="game-help" class="sr-only">
-        Press Space or Arrow Up, click, or tap to jump. Hold briefly for a higher jump. Press P or
-        Escape to pause and M to mute.
-      </p>
+      <header class="site-header">
+        <a class="brand" href="./" aria-label="Floor Infinity home"><span class="brand-mark">∞</span><span>FLOOR ∞<small>BACKPACK DASH</small></span></a>
+        <span class="header-caption">AN ENDLESS PIXEL COMMUTE</span>
+        <button id="sound-button" class="utility-button" type="button" aria-label="Mute sound" aria-pressed="false"><span aria-hidden="true">♫</span><span id="sound-label">Sound on</span></button>
+      </header>
+      <section class="cabinet" aria-label="Game">
+        <div class="cabinet-bar">
+          <div class="floor-indicator"><span class="status-light"></span><span id="status-label">LOADING THE ELEVATOR</span></div>
+          <div class="personal-best">PERSONAL BEST <strong id="best-score">000000</strong></div>
+          <button id="pause-button" class="utility-button" type="button" aria-label="Pause game" hidden><span aria-hidden="true">Ⅱ</span> Pause</button>
+        </div>
+        <div class="stage">
+          <div id="game" role="application" aria-label="Endless runner game canvas" aria-describedby="game-help"></div>
+          <section id="title-screen" class="title-screen" aria-labelledby="game-title" hidden>
+            <div class="title-copy">
+              <p class="eyebrow">RYAN YANNELLI PRESENTS</p>
+              <h1 id="game-title">FLOOR <span>∞</span></h1>
+              <p class="game-subtitle">BACKPACK DASH</p>
+              <p class="title-description">One elevator.<br>Infinite bad floors.</p>
+              <button id="start-button" class="primary-button" type="button">Clock in <span aria-hidden="true">↗</span></button>
+              <p class="start-hint">or press <kbd>SPACE</kbd></p>
+              <button id="music-button" class="text-button" type="button"><span aria-hidden="true">♫</span> Preview the soundtrack</button>
+            </div>
+            <div class="player-label"><span class="status-light"></span> MINI RYAN<small>READY FOR ANOTHER FLOOR</small></div>
+            <span class="stage-coordinate" aria-hidden="true">EST. FLOOR 001 / ∞</span>
+          </section>
+          <div id="run-hud" class="run-hud" hidden>
+            <div class="score-display"><span>SCORE</span><strong id="score">000000</strong></div>
+            <div class="run-floor"><span id="theme-name">OFFICE 404</span><strong>FLOOR <span id="floor">001</span></strong></div>
+            <div class="pixel-display"><span>LOST PIXELS</span><strong><i aria-hidden="true"></i><span id="pixels">00</span></strong></div>
+          </div>
+          <div id="floor-progress" class="floor-progress" role="progressbar" aria-label="Progress to next floor" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><span></span></div>
+          <section id="pause-screen" class="screen-overlay" aria-labelledby="pause-title" hidden>
+            <div class="menu-card"><p class="eyebrow">TAKE YOUR TIME</p><h2 id="pause-title">On a break.</h2><p>Your elevator can wait.</p><button id="resume-button" class="primary-button" type="button">Keep going <span aria-hidden="true">→</span></button><button class="text-button home-button" type="button">Back to lobby</button></div>
+          </section>
+          <section id="result-screen" class="screen-overlay" aria-labelledby="result-title" hidden>
+            <div class="menu-card result-card"><p id="result-eyebrow" class="eyebrow">END OF SHIFT</p><h2 id="result-title">Rough floor.</h2><div class="result-score"><strong id="result-score">000000</strong><span>FINAL SCORE</span></div><div class="result-stats"><span><strong id="result-floor">1</strong>FLOOR</span><span><strong id="result-distance">0m</strong>DISTANCE</span><span><strong id="result-pixels">0</strong>PIXELS</span></div><button id="retry-button" class="primary-button" type="button">Run it back <span aria-hidden="true">↗</span></button><button class="text-button home-button" type="button">Back to lobby</button></div>
+          </section>
+          <p id="loading-label" class="loading-label" role="status">Getting Ryan ready…</p>
+        </div>
+        <div class="control-deck">
+          <div class="control-tip"><span class="key-icon" aria-hidden="true">↑</span><div><strong>One button. Keep moving.</strong><span id="control-hint">Space / ↑ / click to jump. Hold to go higher.</span></div></div>
+          <span class="deck-caption">DODGE OBSTACLES. COLLECT PIXELS.</span>
+          <button id="jump-button" class="jump-button" type="button" hidden><span aria-hidden="true">↑</span> JUMP <small>HOLD FOR HEIGHT</small></button>
+        </div>
+      </section>
+      <section class="floor-guide" aria-label="Floors to discover">
+        <div class="guide-heading"><span class="eyebrow">SAME ELEVATOR.</span><strong>Different kind of chaos.</strong></div>
+        <ol class="floor-list">
+          <li class="floor-stop is-current" data-theme="office"><span class="floor-number">01</span><div><strong>Office 404</strong><small>THE DAILY GRIND</small></div><span class="floor-dot"></span></li>
+          <li class="floor-stop" data-theme="rooftop"><span class="floor-number">02</span><div><strong>Neon Rooftop</strong><small>AFTER HOURS</small></div><span class="floor-dot"></span></li>
+          <li class="floor-stop" data-theme="subway"><span class="floor-number">03</span><div><strong>Midnight Subway</strong><small>LAST TRAIN ENERGY</small></div><span class="floor-dot"></span></li>
+          <li class="floor-stop" data-theme="server"><span class="floor-number">04</span><div><strong>Server Basement</strong><small>SOMETHING IS BUZZING</small></div><span class="floor-dot"></span></li>
+        </ol>
+      </section>
+      <footer class="site-footer"><span>BUILT FOR THE LONG WAY UP.</span><span>PERSONAL BEST SAVED ON THIS DEVICE <span aria-hidden="true">↗</span></span></footer>
+      <p id="game-announcement" class="sr-only" role="status" aria-live="polite"></p>
+      <p id="game-help" class="sr-only">Press Space or Arrow Up, click the game, or hold the Jump button to jump. Hold briefly for a higher jump. Avoid obstacles and collect glowing pixels. Use the Pause and Sound buttons, or press P or Escape to pause and M to mute.</p>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
